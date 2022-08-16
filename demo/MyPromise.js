@@ -64,9 +64,4 @@ myPromise.prototype.then = function (onFullfilled, onRejected) {
   }
 
 }
-
-// 测试
-
-var p = new myPromise(function (resolve, reject) { resolve(1) });
-
-p.then(function (x) { console.log(x) })
+module.exports = myPromise

@@ -38,9 +38,4 @@ myPromise.prototype.then = function (onFullfilled, onRejected) {
   //TODO then如何实现
 
 }
-
-// 测试
-
-var p = new myPromise(function (resolve, reject) { resolve(1) });
-
-p.then(function (x) { console.log(x) })
+module.exports = myPromise
