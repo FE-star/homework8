@@ -18,7 +18,7 @@ function myPromise(constructor) {
     }
     self.status = 'fullfilled'; // 修改状态
     self.value = value; // 存储值
-    this._onFullfilledList.forEach(fn => fn(self.value))
+    self._onFullfilledList.forEach(fn => fn(self.value));
   }
 
   function reject(reason) {
@@ -27,7 +27,7 @@ function myPromise(constructor) {
     }
     self.status = 'rejected';
     self.reason = reason;
-    this._onFullfilledList.forEach(fn => fn(self.reason))
+    self._onRejectedList.forEach(fn => fn(self.reason));
   }
 
   //捕获构造异常
