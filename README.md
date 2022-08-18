@@ -1,3 +1,5 @@
+# Readme [![Node.js CI](https://github.com/zerkhuang/homework8/actions/workflows/node.js.yml/badge.svg)](https://github.com/zerkhuang/homework8/actions/workflows/node.js.yml)
+
 ### 步骤
 
 * Fork 代码仓库并拉到本地
