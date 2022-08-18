@@ -66,7 +66,9 @@ myPromise.prototype.then = function (onFullfilled, onRejected) {
   }
   if (typeof onRejected !== 'function') {
     onRejected = (reason) => {
-      this.reject(reason);
+      return new myPromise((_, reject) => {
+        reject(reason);
+      })
     }
   }
   return new myPromise((resolve, reject) => {
@@ -95,6 +97,10 @@ myPromise.prototype.then = function (onFullfilled, onRejected) {
       }
     });
   })
+}
+
+myPromise.prototype.catch = function (rejectFn) {
+  return this.then(null, rejectFn);
 }
 
 
