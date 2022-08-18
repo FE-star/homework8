@@ -9,6 +9,7 @@
   "author": "ccpro",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^28.1.7",
     "jest": "^28.1.3"
   }
 }

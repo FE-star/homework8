@@ -1,7 +1,8 @@
-const myPromise = require('./index');
+const MyPromise = require('./index');
 
-var p = new myPromise(function (resolve, reject) { resolve('isOk') });
-test('测试primose的then是否成功', () => {
+const p = new MyPromise(function (resolve, reject) { resolve('isOk') });
+
+test('测试 primose 的 then 是否成功', () => {
   expect.assertions(1);
   return p.then(data => {
     expect(data).toBe('isOk');
