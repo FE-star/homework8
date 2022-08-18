@@ -45,18 +45,42 @@ function isFunction(fn) {
 }
 
 myPromise.prototype.then = function (onFullfilled, onRejected) {
-  // 非 pending 状态直接回调
-  if (this.status === 'fullfilled') {
-    isFunction(onFullfilled) && onFullfilled(this.value);
-    return;
-  }
-  if (this.status === 'rejected') {
-    isFunction(onRejected) && onRejected(this.reason);
-    return;
-  }
+  let self = this;
 
-  // pending 状态则加入待回调队列
-  isFunction(onFullfilled) && this._onFullfilledList.push(onFullfilled);
-  isFunction(onRejected) && this._onRejectedList.push(onRejected);
+  return new myPromise((_resolve, _reject) => {
+
+    const _handleFullfiled = isFunction(onFullfilled) && ((_value) => {
+      try {
+        const nextValue = onFullfilled(_value);
+        _resolve(nextValue);
+      } catch (error) {
+        _reject(error);
+      }
+    });
+
+    const _handleRejected = isFunction(onRejected) && ((_reason) => {
+      try {
+        const newValue = onRejected(_reason);
+        _resolve(newValue);
+      } catch (error) {
+        _reject(error);
+      }
+    })
+
+    // 非 pending 状态直接回调
+    if (self.status === 'fullfilled') {
+      _handleFullfiled && _handleFullfiled(self.value);
+      return;
+    }
+    if (self.status === 'rejected') {
+      _handleRejected && _handleRejected(self.reason);
+      return;
+    }
+
+    // pending 状态则加入待回调队列
+    _handleFullfiled && self._onFullfilledList.push(_handleFullfiled)
+    _handleRejected && self._onRejectedList.push(_handleRejected)
+  });
+
 }
 module.exports = myPromise

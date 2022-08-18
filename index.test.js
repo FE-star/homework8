@@ -15,3 +15,23 @@ it('测试 promise 的 reject 是否成功', async () => {
     expect(e.message).toBe('ddd is not defined');
   })
 })
+
+test('测试promise的链式调用是否成功', () => {
+  expect.assertions(2);
+  return p.then(data => {
+    expect(data).toBe('isOk');
+    return 'second';
+  }).then((data) => {
+    expect(data).toBe('second');
+  });
+});
+
+test('测试promise的链式调用 reject是否成功', () => {
+  expect.assertions(2);
+  return p.then(data => {
+    expect(data).toBe('isOk');
+    return ddd;
+  }).then(null, (e) => {
+    expect(e instanceof ReferenceError).toBeTruthy()
+  });
+});
