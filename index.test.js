@@ -6,6 +6,8 @@ describe('promise', function () {
   test('测试primose的then是否成功', () => {
     expect.assertions(1);
     return ok.then(data => {
+      return data;
+    }).then(data => {
       expect(data).toBe('isOk');
     });
   });
