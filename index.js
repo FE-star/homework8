@@ -7,16 +7,46 @@ function myPromise(constructor) {
 
   self.reason = undefined;//定义状态为rejected的时候的状态
 
+  self.callbacks = []; // 存储then中传入的参数
+
   function resolve(value) {
 
     // TODO resolve如何改变状态及返回结果
+    self.status = "resolved";
+    self.value = value;
+
+    self.callbacks.forEach(cb=>self._handler(cb))
+    return this;
 
   }
 
   function reject(reason) {
 
     // TODO reject如何改变状态及返回结果
+    self.status = "rejected";
+    self.reason = reason;
 
+    self.callbacks.forEach(cb=>self._handler(cb))
+    return this;
+
+  }
+
+  self._handler  = function(cb) {
+    const {onFullfilled, onRejected, nextResolve, nextReject} = cb
+    if(self.status === "pending") {
+      this.callbacks.push(cb);
+      return;
+    }
+    try {
+      if(self.status === "resolved") {
+        self.value = onFullfilled(self.value)
+      } else if (self.status === "rejected") {
+        self.value = onRejected(self.reason);
+      }
+      nextResolve(self.value)
+    } catch(err) {
+      nextReject(err)
+    }
   }
 
   //捕获构造异常
@@ -35,7 +65,14 @@ function myPromise(constructor) {
 
 myPromise.prototype.then = function (onFullfilled, onRejected) {
 
-  //TODO then如何实现
-
+  return new myPromise((nextResolve, nextReject) => {
+    this._handler({
+      onFullfilled,
+      onRejected,
+      nextResolve,
+      nextReject
+    })
+  })
 }
+
 module.exports = myPromise
