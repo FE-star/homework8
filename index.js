@@ -8,18 +8,21 @@ function myPromise(constructor) {
   self.reason = undefined;//定义状态为rejected的时候的状态
 
   function resolve(value) {
-
-    // TODO resolve如何改变状态及返回结果
+    if (self.status === "pending") {
+      self.status = "resolved";
+      self.value = value;
+    }
 
   }
 
   function reject(reason) {
 
-    // TODO reject如何改变状态及返回结果
+    if (self.status === "pending") {
+      self.status = "rejected";
+      self.reason = reason;
+    }
 
   }
-
-  //捕获构造异常
 
   try {
 
@@ -35,7 +38,14 @@ function myPromise(constructor) {
 
 myPromise.prototype.then = function (onFullfilled, onRejected) {
 
-  //TODO then如何实现
+  // 实现then方法
+  let self = this;
+  if (self.status === "resolved") {
+    onFullfilled(self.value);
+  }
+  if (self.status === "rejected") {
+    onRejected(self.reason);
+  }
 
 }
 module.exports = myPromise
