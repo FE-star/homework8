@@ -86,7 +86,7 @@ function resolvePromise(promise2, x, resolve, reject) {
 
 myPromise.prototype.then = function (onFullfilled, onRejected) {
 
-  //TODO then如何实现
+  // TODO then如何实现
   // onFulfilled如果不是函数，就忽略onFulfilled，直接返回value
   onFullfilled = typeof onFullfilled === 'function' ? onFullfilled : value => value;
   // onRejected如果不是函数，就忽略onRejected，直接扔出错误
