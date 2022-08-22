@@ -5,6 +5,7 @@ const REJECTED = "rejected";
 function myPromise(constructor) {
     let self = this;
 
+
     self.status = PENDING //定义状态改变前的初始状态
 
     self.value = undefined;//定义状态为resolved的时候的状态
