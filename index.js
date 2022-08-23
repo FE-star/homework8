@@ -10,12 +10,20 @@ function myPromise(constructor) {
   function resolve(value) {
 
     // TODO resolve如何改变状态及返回结果
+    if (self.status === "pending") {
+      self.status = "FULFILLED"
+      self.value = value
+    }
 
   }
 
   function reject(reason) {
 
     // TODO reject如何改变状态及返回结果
+    if (self.status === "pending") {
+      self.status = "REJECTED"
+      self.reason = reason
+    }
 
   }
 
@@ -34,8 +42,19 @@ function myPromise(constructor) {
 }
 
 myPromise.prototype.then = function (onFullfilled, onRejected) {
-
   //TODO then如何实现
+  const typeFullfilled = typeof onFullfilled
+  const typeRejected = typeof onRejected
+
+  typeFullfilled === 'function' ? onFullfilled : data => data
+  typeRejected === 'function' ? onRejected : err => { throw err }
+
+  if (this.status === 'FULFILLED') {
+    onFullfilled(this.value)
+  }
+  if (this.status === 'REJECTED') {
+    onRejected(this.reason)
+  }
 
 }
 module.exports = myPromise
