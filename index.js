@@ -10,12 +10,20 @@ function myPromise(constructor) {
   function resolve(value) {
 
     // TODO resolve如何改变状态及返回结果
+    if (this.status === "pending") {
+      this.status = "fulfilled";
+      this.value = value;
+    }
 
   }
 
   function reject(reason) {
 
     // TODO reject如何改变状态及返回结果
+    if (this.status === "pending") {
+      this.status = "rejected";
+      this.reason = reason;
+    }
 
   }
 
@@ -36,6 +44,13 @@ function myPromise(constructor) {
 myPromise.prototype.then = function (onFullfilled, onRejected) {
 
   //TODO then如何实现
+  setTimeout(() => {
+    if (this.status === "fulfilled") {
+      onFullfilled(this.value);
+    } else if (this.status === "rejected") {
+      onRejected(this.reason);
+    }
+  })
 
 }
 module.exports = myPromise
