@@ -9,6 +9,9 @@ function myPromise(constructor) {
 
   function resolve(value) {
     self.value = value
+    if(self.status !== 'pending'){
+      return
+    }
     self.status = 'resolve'
     const { fullfilled } = self
     if(fullfilled){
@@ -17,7 +20,9 @@ function myPromise(constructor) {
   }
 
   function reject(reason) {
-
+    if(self.status !== 'pending'){
+      return
+    }
     self.reason = reason
     self.status = 'reject'
     // promise的then函数执行时，this值好像是undefined,所以不能直接this.fullfilled
@@ -47,24 +52,30 @@ myPromise.prototype.then = function (onFullfilled, onRejected) {
   if(status == 'resolve'){
     let result = value
     if(onFullfilled && typeof onFullfilled == 'function') {
+      // 这里可以trycatch，给出合理错误提示
       result = onFullfilled(value)         
     }
     return new myPromise(function(resolve){ resolve(result)})
   } else if(status == 'reject'){
     // 错误状态直接执行错误函数，并且返回新的错误状态的promise,使用同一个错误对象
     if(onRejected && typeof onRejected == 'function') {
-      onRejected(reason)      
+      onRejected(reason)   
     }
     return new myPromise(function(_resolve,reject){ reject(reason)})
   } else {
     const self = this
+    // 进行中状态，依然需要返回新的promise对象
     // 感觉两个promise对象耦合了，不过目前没有更好的思路
     return new myPromise(function(resolve,reject){
-      // 进行中状态，依然需要返回新的promise对象
       self.fullfilled = function(value){
         let result = value 
-        result = onFullfilled(value)
-        resolve(result)
+        // 看别人的作业，想起来这里报错了下个promise要进入reject状态
+        try {
+          result = onFullfilled(value)
+          resolve(result)
+        } catch (error) {
+          reject(error)
+        }
       }
       self.rejected = function(reason){
         if(onRejected && typeof onRejected == 'function') {
