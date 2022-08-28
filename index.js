@@ -13,16 +13,27 @@ function myPromise(constructor) {
 
 
   function resolve(value) {
-
     // TODO resolve如何改变状态及返回结果
     if (self.status === 'pending') {
+      // 不能通过测试
+      /** 
       self.value = value
       self.status = 'fulfilled'
       self.resolveCallbackFunc.forEach(callback => {
         queueMicrotask(() => {
-          callback(value)
+          callback()
         })
       })
+      */
+      // 可以通过测试
+      queueMicrotask(() => {
+        self.value = value
+        self.status = 'fulfilled'
+        self.resolveCallbackFunc.forEach(callback => {
+          callback()
+        })
+      })
+
     }
   }
 
@@ -34,7 +45,7 @@ function myPromise(constructor) {
       self.status = 'rejected'
       self.rejectCallbackFunc.forEach(callback => {
         queueMicrotask(() => {
-          callback(reason)
+          callback()
         })
       })
     }
@@ -57,44 +68,42 @@ function myPromise(constructor) {
 myPromise.prototype.then = function (onFullfilled, onRejected) {
   onFullfilled = typeof onFullfilled === 'function' ? onFullfilled : v => v;
   onRejected = typeof onRejected === 'function' ? onRejected : r => { throw r }
+  
   //TODO then如何实现
   const promise1 = new myPromise((resolve, reject) => {
-    if (this.status === 'fulfilled') {
-      queueMicrotask(() => {
+
+    const callbackFunc = function(func, val) {
+      if (typeof func === 'function') {
         try {
-          let x = onFullfilled(this.value);
-          resolvePromise(promise1, x, resolve, reject)
-        } catch(e) {
-          reject(e)
-        }
-      })
-    }
-    if (this.status === 'rejected') {
-      queueMicrotask(() => {
-        try {
-          let x = onRejected(this.reason)
+          let x = func(val);
           resolvePromise(promise1, x, resolve, reject);
         } catch(e) {
           reject(e)
         }
+      }
+    }
+    const asyncCallbackFunc = function() {
+      const arg = arguments;
+      queueMicrotask(() => {
+        callbackFunc(...arg)
       })
     }
+
+    if (this.status === 'fulfilled') {
+      asyncCallbackFunc(onFullfilled, this.value)
+    }
+
+    if (this.status === 'rejected') {
+      asyncCallbackFunc(onRejected, this.reason)
+    }
+
     if (this.status === 'pending') {
       this.resolveCallbackFunc.push(() => {
-        try {
-          let x = onFullfilled(this.value);
-          resolvePromise(promise1, x, resolve, reject);
-        } catch(e) {
-          reject(e)
-        }
+        callbackFunc(onFullfilled, this.value);
       })
+
       this.rejectCallbackFunc.push(() => {
-        try {
-          let x = onRejected(this.reason);
-          resolvePromise(promise1, x, resolve, reject)
-        } catch(e) {
-          reject(e)
-        }
+        callbackFunc(onRejected, this.reason);
       })
     }
   })
@@ -109,32 +118,34 @@ myPromise.prototype.catch = function(onRejected) {
 // 实现链式调用
 function resolvePromise(promise2, x, resolve, reject) {
   // 首先是 基础类型 不是函数，不是对象
-  if (x === null ) return resolve(x);
+  if (!x) return resolve(x);
   if (typeof x !== 'object' && typeof x !== 'function') return resolve(x);
 
   if (x === promise2) {
     return reject(new TypeError('Chaining cycle detected for promise'));
   }
-  // 如果是promise 
+
+  //
   if (x instanceof myPromise) {
     if (x.status === 'pending') {
       x.then(y => {
-        resolvePromise(promise2, y, resolve, reject)
+        resolvePromise(promise2, y, resolve, reject);
       }, reject)
     } else if(x.status === 'fulfilled') {
       resolve(x.value)
     } else if(x.status === 'rejected') {
       reject(x.reason)
     }
+    return;
   }
-
-  // 函数或者对象
-  if(typeof x === 'object' || typeof x === 'function') {
+  
+  if(typeof x === 'object' || typeof x === 'function') {   // 函数或者对象
     try {
       var then = x.then;
     } catch (e) {
         return reject(e);
     }
+
     if (typeof then === 'function') {
       let called = false;
       try {
