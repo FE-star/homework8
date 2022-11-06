@@ -8,6 +8,8 @@ function myPromise(constructor) {
   self.reason = undefined;//定义状态为rejected的时候的状态
 
   function resolve(value) {
+    self.value = value;
+    self.status = 'resolve'
 
     // TODO resolve如何改变状态及返回结果
 
@@ -16,6 +18,9 @@ function myPromise(constructor) {
   function reject(reason) {
 
     // TODO reject如何改变状态及返回结果
+
+    self.reason = reason;
+    self.status = 'reject'
 
   }
 
@@ -36,6 +41,12 @@ function myPromise(constructor) {
 myPromise.prototype.then = function (onFullfilled, onRejected) {
 
   //TODO then如何实现
+
+  if(this.status=='resolve'){
+    onFullfilled(this.value)
+  }else if(this.status=='reject'){
+    onRejected(this.reason)
+  }
 
 }
 module.exports = myPromise
